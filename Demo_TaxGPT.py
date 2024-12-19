@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # OpenAI API Key (Replace with your actual key)
-openai.api_key = "your_openai_api_key"
+openai.api_key = st.secrets["openai"]["api_key"]
 
 def get_ai_response(query, region, language):
     """Fetch AI response from OpenAI API."""
