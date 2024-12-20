@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import firebase_admin
 from firebase_admin import credentials, auth
+import textract
 
 # Initialize Firebase Admin SDK using Streamlit Secrets
 if not firebase_admin._apps:
