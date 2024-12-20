@@ -1,3 +1,3 @@
 streamlit
-pyrebase
+pyrebase4
 openai
