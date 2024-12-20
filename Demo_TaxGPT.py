@@ -2,8 +2,8 @@ import streamlit as st
 from openai import OpenAI
 import firebase_admin
 from firebase_admin import credentials, auth
-import textract
-from io import BytesIO  # For extracting text from uploaded files
+from pdfminer.high_level import extract_text
+from io import BytesIO  # For handling uploaded file content
 
 # OpenAI API Key
 client = OpenAI(
@@ -45,14 +45,14 @@ def get_ai_response(query, region, language, context=""):
         return f"Error fetching response: {e}"
 
 def extract_text_from_files(files):
-    """Extract text from uploaded files."""
+    """Extract text from uploaded PDF files."""
     extracted_text = ""
     for file in files:
         try:
-            # Use the BytesIO object for file content
-            file_content = file.read()  # Read file content as bytes
-            content = textract.process(BytesIO(file_content))
-            extracted_text += content.decode("utf-8") + "\n"
+            # Read file content directly
+            file_content = file.read()
+            text = extract_text(BytesIO(file_content))  # Extract text from PDF
+            extracted_text += text + "\n"
         except Exception as e:
             st.error(f"Error reading {file.name}: {e}")
     return extracted_text
@@ -113,7 +113,7 @@ def main():
 
         # File Upload Section
         st.header("Upload Tax Files")
-        uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs, spreadsheets, forms):", accept_multiple_files=True)
+        uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs):", type=["pdf"], accept_multiple_files=True)
         context = ""
         if uploaded_files:
             context = extract_text_from_files(uploaded_files)
