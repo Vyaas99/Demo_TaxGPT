@@ -40,7 +40,7 @@ def main():
 
     if st.button("Submit Question"):
         if user_query.strip():
-            st.info("Fetching response from AI...")
+            #st.info("Fetching response from AI...")
             ai_response = get_ai_response(user_query, preferred_region, preferred_language)
             st.write(f"**Question:** {user_query}")
             st.success(f"**AI Response:** {ai_response}")
