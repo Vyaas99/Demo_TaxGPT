@@ -87,8 +87,6 @@ def main():
         st.session_state["user"] = None
     if "conversation" not in st.session_state:
         st.session_state.conversation = []
-    if "query" not in st.session_state:
-        st.session_state.query = ""
 
     # Sidebar for login or sign-up
     menu = ["Login", "Sign Up"]
@@ -135,13 +133,12 @@ def main():
                 st.markdown("---")
 
         # Input Section for Questions
-        user_query = st.text_input("Enter your question below:", value=st.session_state.query, key="query")
+        user_query = st.text_input("Enter your question below:")
 
         if st.button("Submit"):
-            if st.session_state.query.strip():
-                ai_response = get_ai_response(st.session_state.query, preferred_region, preferred_language, context)
-                st.session_state.conversation.append((st.session_state.query, ai_response))
-                st.session_state.query = ""  # Clear the input field
+            if user_query.strip():
+                ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
+                st.session_state.conversation.append((user_query, ai_response))
             else:
                 st.warning("Please enter a question before submitting.")
 
