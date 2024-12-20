@@ -7,7 +7,7 @@ from io import BytesIO  # For handling uploaded file content
 
 # OpenAI API Key
 client = OpenAI(
-  api_key=st.secrets["openai"]["api_key"]
+    api_key=st.secrets["openai"]["api_key"]
 )
 
 # Initialize Firebase Admin SDK using Streamlit Secrets
@@ -80,6 +80,10 @@ def main():
     # App Title
     st.title("Tax GPT: Your Tax Assistant")
 
+    # Initialize session state for conversation history
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = []
+
     # Sidebar for User Preferences
     menu = ["Login", "Sign Up"]
     choice = st.sidebar.selectbox("Menu", menu)
@@ -107,12 +111,6 @@ def main():
         st.sidebar.write(f"Preferred Region: {preferred_region}")
         st.sidebar.write(f"Preferred Language: {preferred_language}")
 
-        # Input Section for Tax Queries
-        st.header("Ask Your Tax-Related Question")
-        user_query = st.text_area("Enter your question below:", "e.g., What are the tax benefits for small businesses?")
-
-        submit_question = st.button("Submit Question")
-
         # File Upload Section
         st.header("Upload Tax Files")
         uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs):", type=["pdf"], accept_multiple_files=True)
@@ -121,11 +119,19 @@ def main():
             context = extract_text_from_files(uploaded_files)
             st.success("Context extracted from files.")
 
-        if submit_question:
+        # Chat Interface
+        st.header("Ask Your Tax-Related Questions")
+        with st.container():
+            for question, answer in st.session_state.conversation:
+                st.markdown(f"**You:** {question}")
+                st.markdown(f"**Tax GPT:** {answer}")
+
+        # New query input
+        user_query = st.text_input("Enter your question below:")
+        if st.button("Submit"):
             if user_query.strip():
                 ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
-                st.write(f"**Question:** {user_query}")
-                st.success(f"**AI Response:** {ai_response}")
+                st.session_state.conversation.append((user_query, ai_response))
             else:
                 st.warning("Please enter a question before submitting.")
 
