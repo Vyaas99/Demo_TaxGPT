@@ -1,17 +1,23 @@
 import streamlit as st
 from openai import OpenAI
-import pyrebase
+import firebase_admin
+from firebase_admin import credentials, auth
 
-# Firebase Configuration
-firebase_config = {
-    "apiKey": st.secrets["firebase"]["api_key"],
-    "authDomain": "tax-gpt-251ac.firebaseapp.com",
-    "projectId": "tax-gpt-251ac",
-    "storageBucket": "tax-gpt-251ac.firebasestorage.app",
-    "messagingSenderId": "195854541435 ",
-    "appId": "1:195854541435:web:2514e816ed75387b8638de",
-    "measurementId": "G-S0SY9QFNT9"
-}
+# Initialize Firebase Admin SDK using Streamlit Secrets
+if not firebase_admin._apps:
+    cred = credentials.Certificate({
+        "type": st.secrets["firebase"]["type"],
+        "project_id": st.secrets["firebase"]["project_id"],
+        "private_key_id": st.secrets["firebase"]["private_key_id"],
+        "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),
+        "client_email": st.secrets["firebase"]["client_email"],
+        "client_id": st.secrets["firebase"]["client_id"],
+        "auth_uri": st.secrets["firebase"]["auth_uri"],
+        "token_uri": st.secrets["firebase"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
+    })
+    firebase_admin.initialize_app(cred)
 
 # Initialize Firebase
 firebase = pyrebase.initialize_app(firebase_config)
@@ -31,9 +37,10 @@ def get_ai_response(query, region, language):
     except Exception as e:
         return f"Error fetching response: {e}"
 
-def login_user(email, password):
+def login_user(email):
     try:
-        user = auth.sign_in_with_email_and_password(email, password)
+        user = auth.get_user_by_email(email)
+        st.success(f"Logged in as {user.email}")
         return user
     except Exception as e:
         st.error(f"Error: {e}")
@@ -41,7 +48,7 @@ def login_user(email, password):
 
 def signup_user(email, password):
     try:
-        user = auth.create_user_with_email_and_password(email, password)
+        user = auth.create_user(email=email, password=password)
         st.success("Account created successfully! Please log in.")
         return user
     except Exception as e:
