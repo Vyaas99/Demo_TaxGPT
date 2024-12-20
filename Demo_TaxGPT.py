@@ -2,7 +2,8 @@ import streamlit as st
 from openai import OpenAI
 import firebase_admin
 from firebase_admin import credentials, auth
-import textract  # For extracting text from uploaded files
+import textract
+from io import BytesIO  # For extracting text from uploaded files
 
 # OpenAI API Key
 client = OpenAI(
@@ -48,8 +49,9 @@ def extract_text_from_files(files):
     extracted_text = ""
     for file in files:
         try:
-            # Use the BytesIO object directly
-            content = textract.process(file, input_type='stream')
+            # Use the BytesIO object for file content
+            file_content = file.read()  # Read file content as bytes
+            content = textract.process(BytesIO(file_content))
             extracted_text += content.decode("utf-8") + "\n"
         except Exception as e:
             st.error(f"Error reading {file.name}: {e}")
@@ -124,12 +126,10 @@ def main():
                 st.success(f"**AI Response:** {ai_response}")
             else:
                 st.warning("Please enter a question before submitting.")
-    else:
-        st.info("Please log in to access the app features.")
 
-    # Footer
-    st.markdown("---")
-    st.caption("Powered by Tax GPT | An AI-driven tax assistant")
+        # Footer
+        st.markdown("---")
+        st.caption("Powered by Tax GPT | An AI-driven tax assistant")
 
 if __name__ == "__main__":
     main()
