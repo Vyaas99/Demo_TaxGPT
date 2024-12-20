@@ -19,6 +19,8 @@ if not firebase_admin._apps:
     })
     firebase_admin.initialize_app(cred)
 
+client=OpenAI(api_key=st.secrets["openai"]["api_key"])
+
 
 def get_ai_response(query, region, language):
     """Fetch AI response from OpenAI API."""
