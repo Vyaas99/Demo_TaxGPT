@@ -48,8 +48,8 @@ def extract_text_from_files(files):
     extracted_text = ""
     for file in files:
         try:
-            # Read the content directly from the UploadedFile object
-            content = textract.process(file.name, input_type='stream', stream=file)
+            # Use file.read() to get the file content directly
+            content = textract.process(file, input_type='bytes', input_file=file.read())
             extracted_text += content.decode("utf-8") + "\n"
         except Exception as e:
             st.error(f"Error reading {file.name}: {e}")
