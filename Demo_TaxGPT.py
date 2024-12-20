@@ -34,7 +34,7 @@ def get_ai_response(query, region, language):
     except Exception as e:
         return f"Error fetching response: {e}"
 
-def login_user(email):
+def login_user(email, password):
     try:
         user = auth.get_user_by_email(email)
         st.success(f"Logged in as {user.email}")
