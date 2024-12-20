@@ -22,19 +22,34 @@ if not firebase_admin._apps:
 client=OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 
-def get_ai_response(query, region, language):
-    """Fetch AI response from OpenAI API."""
+def get_ai_response(query, region, language, context=""):
+    """Fetch AI response from OpenAI API with optional context."""
     try:
+        messages = [
+            {"role": "system", "content": f"You are a helpful AI assistant specializing in tax advice for the {region} region, responding in {language}."}
+        ]
+        if context:
+            messages.append({"role": "system", "content": f"Here is additional context from the uploaded files: {context}"})
+        messages.append({"role": "user", "content": query})
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": f"You are a helpful AI assistant specializing in tax advice for the {region} region, responding in {language}."},
-                {"role": "user", "content": query},
-            ],
+            messages=messages,
         )
         return response.choices[0].message.content
     except Exception as e:
         return f"Error fetching response: {e}"
+
+def extract_text_from_files(files):
+    """Extract text from uploaded files."""
+    extracted_text = ""
+    for file in files:
+        try:
+            content = textract.process(file)
+            extracted_text += content.decode("utf-8") + "\n"
+        except Exception as e:
+            st.error(f"Error reading {file.name}: {e}")
+    return extracted_text
 
 def login_user(email, password):
     try:
