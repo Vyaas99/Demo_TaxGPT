@@ -119,7 +119,9 @@ def main():
             context = extract_text_from_files(uploaded_files)
             st.success("Context extracted from files.")
 
-        if st.button("Submit Question"):
+        submit_question = st.button("Submit Question")
+
+        if submit_question:
             if user_query.strip():
                 ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
                 st.write(f"**Question:** {user_query}")
