@@ -2,7 +2,12 @@ import streamlit as st
 from openai import OpenAI
 import firebase_admin
 from firebase_admin import credentials, auth
-import textract
+import textract  # For extracting text from uploaded files
+
+# OpenAI API Key
+client = OpenAI(
+  api_key=st.secrets["openai"]["api_key"]
+)
 
 # Initialize Firebase Admin SDK using Streamlit Secrets
 if not firebase_admin._apps:
@@ -19,9 +24,6 @@ if not firebase_admin._apps:
         "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
     })
     firebase_admin.initialize_app(cred)
-
-client=OpenAI(api_key=st.secrets["openai"]["api_key"])
-
 
 def get_ai_response(query, region, language, context=""):
     """Fetch AI response from OpenAI API with optional context."""
@@ -46,7 +48,8 @@ def extract_text_from_files(files):
     extracted_text = ""
     for file in files:
         try:
-            content = textract.process(file)
+            # Read the content directly from the UploadedFile object
+            content = textract.process(file.name, input_type='stream', stream=file)
             extracted_text += content.decode("utf-8") + "\n"
         except Exception as e:
             st.error(f"Error reading {file.name}: {e}")
@@ -127,5 +130,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
