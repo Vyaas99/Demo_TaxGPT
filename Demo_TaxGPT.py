@@ -1,14 +1,17 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 # OpenAI API Key (Replace with your actual key)
-openai.api_key = st.secrets["openai"]["api_key"]
+#openai.api_key = st.secrets["openai"]["api_key"]
+client = OpenAI(
+  api_key=st.secrets["openai"]["api_key"]
+)
 
 def get_ai_response(query, region, language):
     """Fetch AI response from OpenAI API."""
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": f"You are a helpful AI assistant specializing in tax advice for the {region} region, responding in {language}."},
                 {"role": "user", "content": query},
