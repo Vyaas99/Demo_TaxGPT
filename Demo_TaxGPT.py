@@ -48,8 +48,8 @@ def extract_text_from_files(files):
     extracted_text = ""
     for file in files:
         try:
-            # Use file.read() to get the file content directly
-            content = textract.process(file, input_type='bytes', input_file=file.read())
+            # Read the content directly from the UploadedFile object
+            content = textract.process(file.name, input_type='stream', stream=file)
             extracted_text += content.decode("utf-8") + "\n"
         except Exception as e:
             st.error(f"Error reading {file.name}: {e}")
@@ -58,6 +58,7 @@ def extract_text_from_files(files):
 def login_user(email, password):
     try:
         user = auth.get_user_by_email(email)
+        st.session_state["user"] = user
         st.success(f"Logged in as {user.email}")
         return user
     except Exception as e:
@@ -123,10 +124,12 @@ def main():
                 st.success(f"**AI Response:** {ai_response}")
             else:
                 st.warning("Please enter a question before submitting.")
+    else:
+        st.info("Please log in to access the app features.")
 
-        # Footer
-        st.markdown("---")
-        st.caption("Powered by Tax GPT | An AI-driven tax assistant")
+    # Footer
+    st.markdown("---")
+    st.caption("Powered by Tax GPT | An AI-driven tax assistant")
 
 if __name__ == "__main__":
     main()
