@@ -57,6 +57,27 @@ def extract_text_from_files(files):
             st.error(f"Error reading {file.name}: {e}")
     return extracted_text
 
+def login_user(email, password):
+    """Authenticate a user using Firebase."""
+    try:
+        user = auth.get_user_by_email(email)
+        st.session_state["user"] = user
+        st.success(f"Logged in as {user.email}")
+        return user
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return None
+
+def signup_user(email, password):
+    """Create a new user using Firebase."""
+    try:
+        user = auth.create_user(email=email, password=password)
+        st.success("Account created successfully! Please log in.")
+        return user
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return None
+
 def main():
     # App Title
     st.title("Tax GPT: Your Tax Assistant")
