@@ -7,7 +7,7 @@ openai.api_key = st.secrets["openai"]["api_key"]
 def get_ai_response(query, region, language):
     """Fetch AI response from OpenAI API."""
     try:
-        response = openai.chat.completion.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": f"You are a helpful AI assistant specializing in tax advice for the {region} region, responding in {language}."},
