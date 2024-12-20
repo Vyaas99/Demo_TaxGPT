@@ -57,25 +57,6 @@ def extract_text_from_files(files):
             st.error(f"Error reading {file.name}: {e}")
     return extracted_text
 
-def login_user(email, password):
-    try:
-        user = auth.get_user_by_email(email)
-        st.session_state["user"] = user
-        st.success(f"Logged in as {user.email}")
-        return user
-    except Exception as e:
-        st.error(f"Error: {e}")
-        return None
-
-def signup_user(email, password):
-    try:
-        user = auth.create_user(email=email, password=password)
-        st.success("Account created successfully! Please log in.")
-        return user
-    except Exception as e:
-        st.error(f"Error: {e}")
-        return None
-
 def main():
     # App Title
     st.title("Tax GPT: Your Tax Assistant")
@@ -133,12 +114,12 @@ def main():
                 st.markdown("---")
 
         # Input Section for Questions
-        user_query = st.text_input("Enter your question below:", key="query")
+        user_query = st.text_input("Enter your question below:", value=st.session_state.query, key="query")
 
         if st.button("Submit"):
-            if user_query.strip():
-                ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
-                st.session_state.conversation.append((user_query, ai_response))
+            if st.session_state.query.strip():
+                ai_response = get_ai_response(st.session_state.query, preferred_region, preferred_language, context)
+                st.session_state.conversation.append((st.session_state.query, ai_response))
                 st.session_state.query = ""  # Clear the input field
             else:
                 st.warning("Please enter a question before submitting.")
