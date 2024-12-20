@@ -82,10 +82,7 @@ def main():
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
         if st.button("Login"):
-            user = login_user(email, password)
-            if user:
-                st.success(f"Welcome {email}!")
-                st.session_state["user"] = user
+            login_user(email, password)
 
     elif choice == "Sign Up":
         st.subheader("Sign Up")
@@ -107,21 +104,21 @@ def main():
         st.header("Ask Your Tax-Related Question")
         user_query = st.text_area("Enter your question below:", "e.g., What are the tax benefits for small businesses?")
 
+        # File Upload Section
+        st.header("Upload Tax Files")
+        uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs, spreadsheets, forms):", accept_multiple_files=True)
+        context = ""
+        if uploaded_files:
+            context = extract_text_from_files(uploaded_files)
+            st.success("Context extracted from files.")
+
         if st.button("Submit Question"):
             if user_query.strip():
-                ai_response = get_ai_response(user_query, preferred_region, preferred_language)
+                ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
                 st.write(f"**Question:** {user_query}")
                 st.success(f"**AI Response:** {ai_response}")
             else:
                 st.warning("Please enter a question before submitting.")
-
-        # File Upload Section
-        st.header("Upload Tax Files")
-        uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs, spreadsheets, forms):", accept_multiple_files=True)
-        
-        if uploaded_files:
-            for uploaded_file in uploaded_files:
-                st.write(f"File Uploaded: {uploaded_file.name}")
 
         # Footer
         st.markdown("---")
@@ -129,4 +126,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
