@@ -111,6 +111,8 @@ def main():
         st.header("Ask Your Tax-Related Question")
         user_query = st.text_area("Enter your question below:", "e.g., What are the tax benefits for small businesses?")
 
+        submit_question = st.button("Submit Question")
+
         # File Upload Section
         st.header("Upload Tax Files")
         uploaded_files = st.file_uploader("Upload your tax-related documents (e.g., PDFs):", type=["pdf"], accept_multiple_files=True)
@@ -118,8 +120,6 @@ def main():
         if uploaded_files:
             context = extract_text_from_files(uploaded_files)
             st.success("Context extracted from files.")
-
-        submit_question = st.button("Submit Question")
 
         if submit_question:
             if user_query.strip():
