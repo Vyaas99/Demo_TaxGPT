@@ -19,9 +19,6 @@ if not firebase_admin._apps:
     })
     firebase_admin.initialize_app(cred)
 
-# Initialize Firebase
-firebase = pyrebase.initialize_app(firebase_config)
-auth = firebase.auth()
 
 def get_ai_response(query, region, language):
     """Fetch AI response from OpenAI API."""
