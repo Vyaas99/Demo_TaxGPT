@@ -139,6 +139,7 @@ def main():
             if user_query.strip():
                 ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
                 st.session_state.conversation.append((user_query, ai_response))
+                st.experimental_rerun()  # Force rerun to display the response immediately
             else:
                 st.warning("Please enter a question before submitting.")
 
