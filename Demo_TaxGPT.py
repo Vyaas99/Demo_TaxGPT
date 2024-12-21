@@ -63,11 +63,13 @@ def main():
     # App Title
     st.title("Tax GPT: Your Tax Assistant")
 
-    # Initialize session state for user and conversation history
+    # Initialize session state for user, messages, and context
     if "user" not in st.session_state:
         st.session_state["user"] = None
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "context" not in st.session_state:
+        st.session_state.context = ""
 
     # Sidebar for login or sign-up
     menu = ["Login", "Sign Up"]
@@ -97,10 +99,11 @@ def main():
         # File Upload Section
         st.sidebar.header("Upload Tax Files")
         uploaded_files = st.sidebar.file_uploader("Upload your tax-related documents (PDF only):", type=["pdf"], accept_multiple_files=True)
-        context = ""
         if uploaded_files:
+            # Extract and store context from uploaded files
             context = extract_text_from_files(uploaded_files)
-            st.sidebar.success("Context extracted from files.")
+            st.session_state.context = context
+            st.sidebar.success("Context extracted and saved!")
 
         # Display chat messages from history on app rerun
         for message in st.session_state.messages:
@@ -118,15 +121,13 @@ def main():
             # Generate assistant response with OpenAI API
             with st.chat_message("assistant"):
                 messages = [
-                    {"role": "system", "content": f"Here is additional context from the uploaded files: {context}"}
+                    {"role": "system", "content": f"Here is additional context from the uploaded files: {st.session_state.context}"}
                 ] + [
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
-                ] + [
-                    {"role": "user", "content": prompt}
                 ]
                 stream = client.chat.completions.create(
-                    model="gpt-3.5-turbo",  # Default model
+                    model="gpt-3.5-turbo",
                     messages=messages,
                     stream=True,
                 )
