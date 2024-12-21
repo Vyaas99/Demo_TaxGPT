@@ -117,12 +117,17 @@ def main():
 
             # Generate assistant response with OpenAI API
             with st.chat_message("assistant"):
+                messages = [
+                    {"role": "system", "content": f"Here is additional context from the uploaded files: {context}"}
+                ] + [
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ] + [
+                    {"role": "user", "content": prompt}
+                ]
                 stream = client.chat.completions.create(
                     model="gpt-3.5-turbo",  # Default model
-                    messages=[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
+                    messages=messages,
                     stream=True,
                 )
                 response = ""
