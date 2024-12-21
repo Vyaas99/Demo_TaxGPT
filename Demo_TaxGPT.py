@@ -7,7 +7,7 @@ from io import BytesIO  # For handling uploaded file content
 
 # OpenAI API Key
 client = OpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"]
+    api_key=st.secrets["openai"]["api_key"]
 )
 
 # Initialize Firebase Admin SDK using Streamlit Secrets
