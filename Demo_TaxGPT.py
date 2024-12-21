@@ -7,7 +7,7 @@ from io import BytesIO  # For handling uploaded file content
 
 # OpenAI API Key
 client = OpenAI(
-    api_key=st.secrets["openai"]["api_key"]
+    api_key=st.secrets["OPENAI_API_KEY"]
 )
 
 # Initialize Firebase Admin SDK using Streamlit Secrets
@@ -26,30 +26,11 @@ if not firebase_admin._apps:
     })
     firebase_admin.initialize_app(cred)
 
-def get_ai_response(query, region, language, context=""):
-    """Fetch AI response from OpenAI API with optional context."""
-    try:
-        messages = [
-            {"role": "system", "content": f"You are a helpful AI assistant specializing in tax advice for the {region} region, responding in {language}."}
-        ]
-        if context:
-            messages.append({"role": "system", "content": f"Here is additional context from the uploaded files: {context}"})
-        messages.append({"role": "user", "content": query})
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error fetching response: {e}"
-
 def extract_text_from_files(files):
     """Extract text from uploaded PDF files."""
     extracted_text = ""
     for file in files:
         try:
-            # Read file content directly
             file_content = file.read()
             text = extract_text(BytesIO(file_content))  # Extract text from PDF
             extracted_text += text + "\n"
@@ -85,8 +66,8 @@ def main():
     # Initialize session state for user and conversation history
     if "user" not in st.session_state:
         st.session_state["user"] = None
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = []
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
     # Sidebar for login or sign-up
     menu = ["Login", "Sign Up"]
@@ -121,27 +102,35 @@ def main():
             context = extract_text_from_files(uploaded_files)
             st.sidebar.success("Context extracted from files.")
 
-        # Display chat history
-        st.subheader("Chat History")
-        chat_placeholder = st.empty()  # Placeholder for the chat
+        # Display chat messages from history on app rerun
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-        # Update chat display
-        with chat_placeholder.container():
-            for question, answer in st.session_state.conversation:
-                st.markdown(f"**You:** {question}")
-                st.markdown(f"**Tax GPT:** {answer}")
-                st.markdown("---")
+        # Accept user input
+        if prompt := st.chat_input("Ask your tax-related question:"):
+            # Add user message to chat history
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            # Display user message in chat container
+            with st.chat_message("user"):
+                st.markdown(prompt)
 
-        # Input Section for Questions
-        user_query = st.text_input("Enter your question below:")
-
-        if st.button("Submit"):
-            if user_query.strip():
-                ai_response = get_ai_response(user_query, preferred_region, preferred_language, context)
-                st.session_state.conversation.append((user_query, ai_response))
-                st.experimental_rerun()  # Force rerun to display the response immediately
-            else:
-                st.warning("Please enter a question before submitting.")
+            # Generate assistant response with OpenAI API
+            with st.chat_message("assistant"):
+                stream = client.chat.completions.create(
+                    model="gpt-3.5-turbo",  # Default model
+                    messages=[
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    stream=True,
+                )
+                response = ""
+                for chunk in stream:
+                    content = chunk["choices"][0]["delta"].get("content", "")
+                    response += content
+                    st.markdown(content)  # Display streamed chunk
+                st.session_state.messages.append({"role": "assistant", "content": response})
 
         # Footer
         st.markdown("---")
