@@ -127,10 +127,12 @@ def main():
                 )
                 response = ""
                 for chunk in stream:
-                    # Corrected access to response content
+                    # Collect streamed content coherently
                     content = chunk.choices[0].delta.content or ""
                     response += content
-                    st.markdown(content)  # Display streamed chunk
+
+                # Display the full response once it's complete
+                st.markdown(response)
                 st.session_state.messages.append({"role": "assistant", "content": response})
 
         # Footer
