@@ -128,7 +128,7 @@ def main():
                 response = ""
                 for chunk in stream:
                     # Corrected access to response content
-                    content = chunk.choices[0].delta.get("content", "")
+                    content = chunk.choices[0].delta.content or ""
                     response += content
                     st.markdown(content)  # Display streamed chunk
                 st.session_state.messages.append({"role": "assistant", "content": response})
