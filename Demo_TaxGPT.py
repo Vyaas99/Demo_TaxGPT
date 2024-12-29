@@ -137,12 +137,18 @@ def main():
                     },
                     {
                         "role": "system",
+                        "content": f"You should provide responses specific to the tax region '{preferred_region or 'United States'}' "
+                                   f"and in the language '{preferred_language or 'English'}'."
+                    },
+                    {
+                        "role": "system",
                         "content": f"Here is additional context from the uploaded files: {st.session_state.context}"
                     }
                 ] + [
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
                 ]
+
 
                 stream = client.chat.completions.create(
                     model="gpt-3.5-turbo",
