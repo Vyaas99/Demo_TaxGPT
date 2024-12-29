@@ -121,11 +121,29 @@ def main():
             # Generate assistant response with OpenAI API
             with st.chat_message("assistant"):
                 messages = [
-                    {"role": "system", "content": f"Here is additional context from the uploaded files: {st.session_state.context}"}
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are TaxGPT, an AI specialized in providing clear, accurate, and professional guidance on tax-related matters. "
+                            "Your expertise spans multiple regions, including the United States, Canada, the United Kingdom, and other jurisdictions. "
+                            "You are trained to: \n"
+                            "1. Explain complex tax concepts in simple, user-friendly language. \n"
+                            "2. Provide region-specific advice while clarifying general principles when exact legal advice is beyond your scope. \n"
+                            "3. Leverage uploaded user documents to extract relevant context and provide personalized answers. \n"
+                            "4. Avoid offering legal or financial advice where professional certification is required and instead guide users to consult a certified tax professional. \n\n"
+                            "Your responses should be concise, relevant, and professional, while maintaining an approachable tone. "
+                            "Use examples where helpful and ensure clarity in every explanation."
+                        )
+                    },
+                    {
+                        "role": "system",
+                        "content": f"Here is additional context from the uploaded files: {st.session_state.context}"
+                    }
                 ] + [
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
                 ]
+
                 stream = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=messages,
