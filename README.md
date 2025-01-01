@@ -28,3 +28,5 @@ This project demonstrates expertise in **full-stack software engineering** by bu
 - **Version Control:** Designed with clear modular functions, ensuring maintainability and compatibility with modern software practices.  
 
 This project showcases the ability to integrate AI capabilities into real-world applications, combining frontend and backend engineering with secure authentication and dynamic data processing, making it a perfect example of end-to-end software engineering expertise.  
+
+Check it out here: https://demotaxgpt.streamlit.app/
